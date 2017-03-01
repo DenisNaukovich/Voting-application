@@ -1,0 +1,126 @@
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <link type="text/css" rel="stylesheet" media="screen" href="/webjars/bootstrap/3.3.7/css/bootstrap.min.css"/>
+    <link type="text/css" rel="stylesheet" media="screen" href="/webjars/bootstrap/3.3.7/css/bootstrap-theme.min.css"/>
+    <script type="text/javascript" src="/webjars/jquery/3.1.0/jquery.min.js"></script>
+    <script type="text/javascript" src="/webjars/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+</head>
+<body>
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-6 col-sm-offset-3">
+
+                <h2 id="title">{{voting.title}} {{#voting.closed}}<span class="glyphicon glyphicon-lock"></span>{{/voting.closed}}</h2>
+
+                {{^voting.closed}}
+                    {{#voting.options}}
+                        <a voteOptionId="{{id}}" class="btn btn-default" style="min-width: 10em;">{{name}}</a>
+                    {{/voting.options}}
+                {{/voting.closed}}
+
+                <h3>Results</h3>
+
+                {{#voting.options}}
+                    <p>
+                        <label class="option-name">{{name}}:</label>
+                        <label voteOptionId="{{id}}" class="option-count">{{counterVotes}}</label>
+                    </p>
+                    <div class="progress">
+                        <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="{{counterVotes}}" aria-valuemin="0" aria-valuemax="100" ></div>
+                    </div>
+                {{/voting.options}}
+
+                <p>
+                    {{^voting.closed}}
+                        <a id="close-voting-button" votingId="{{id}}" class="btn btn-lg btn-primary">Close voting</a>
+                    {{/voting.closed}}
+                    <a class="btn btn-lg btn-default" href="/voting" role="button">Back</a>
+                </p>
+            </div>
+        </div>
+    </div>
+
+</body>
+
+<script>
+    const ROOT_URL = "/voting/";
+    $(document).ready(function () {
+        $("#close-voting-button").click(function(event) {
+            closeVoting($("#close-voting-button").attr("votingId"));
+        });
+
+        $("a[voteOptionId]").click(function() {
+            toVote($(this).attr("voteOptionId"));
+        });
+
+        updateProgressBar();
+    });
+
+    function closeVoting(votingId) {
+        $.ajax({
+            type: "PUT",
+            url: ROOT_URL + votingId + "/close",
+            statusCode: {
+                201: function() {
+                    $("#close-voting-button").remove();
+                    addLockIcon();
+                    removeVoteOption();
+                },
+                204: function() {
+                    alert("The vote having id = " + votingId + " not exists!");
+                }
+            },
+            error: function (e) {
+                alert('error');
+            }
+        });
+    }
+
+    function toVote(voteOptionId) {
+        var votingId = $("#close-voting-button").attr("votingId");
+        $.ajax({
+            type: "PUT",
+            url: ROOT_URL + votingId + "/vote",
+            contentType: "application/json",
+            data: JSON.stringify(voteOptionId),
+            statusCode: {
+                201: function() {
+                    updateLabelCounter(voteOptionId);
+                    updateProgressBar();
+                },
+                204: function() {
+                    alert("The vote option having id = " + voteOptionId + " not exists!");
+                }
+            },
+            error: function (e) {
+                alert('error');
+            }
+        });
+    }
+
+    function updateLabelCounter(voteOptionId) {
+        var curentOptionCount = Number($("label[voteOptionId="+voteOptionId+"]").text());
+        $("label[voteOptionId="+voteOptionId+"]").text(curentOptionCount+1);
+    }
+    function updateProgressBar() {
+        var totalCountVote = 0;
+        $(".option-count").each(function(){
+            totalCountVote += Number($(this).text());
+        });
+        $(".option-count").each(function(){
+            var countVoteInPercent = Number($(this).text())/totalCountVote * 100;
+            $(this).parent().next().children().css("width", countVoteInPercent + "%");
+        });
+    }
+
+    function addLockIcon() {
+        $("#title").append('<span class="glyphicon glyphicon-lock"></span>');
+    }
+    function removeVoteOption() {
+        $("a[voteOptionId]").remove();
+    }
+
+</script>
+</html>

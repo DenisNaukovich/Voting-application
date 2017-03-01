@@ -34,7 +34,6 @@ http://localhost:8083/
 - **web/REST**: [Spring Boot](https://projects.spring.io/spring-boot/) 1.5.1.RELEASE <br/>
 - **marshalling**: [Jackson](https://github.com/FasterXML/jackson-databind) 2.8.6 (for JSON) <br/>
 - **persistence**: [Spring Data JPA](http://www.springsource.org/spring-data/jpa) and [Hibernate](http://www.hibernate.org/) 5 <br/>
-- **persistence providers**: PostgreSQL
-- **frontend**: jQuery, Bootstrap
-- **testing**: [junit](http://www.junit.org/), [hamcrest](http://code.google.com/p/hamcrest/), [mockito](http://code.google.com/p/mockito/), [rest-assured](http://code.google.com/p/rest-assured/) <br/>
+- **persistence providers**: PostgreSQL <br/>
+- **frontend**: jQuery, Bootstrap <br/>
 - **build automation**: [Maven](http://maven.apache.org) 3
